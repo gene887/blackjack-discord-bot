@@ -75,7 +75,10 @@ async def blackjack(ctx):
     try:
         bet_msg = await bot.wait_for("message", check=check, timeout=60)
         bet = round(float(bet_msg.content), 2)
-        if bet <= 0 or bet > get_bal(user_id):
+        if bet <= 0:
+            return
+        elif bet > get_bal(user_id):
+            await ctx.send("You don't have that much.")
             return
     except (ValueError, asyncio.TimeoutError):
         return
@@ -135,7 +138,7 @@ async def blackjack(ctx):
                 while player_value > 21 and len(player_aces) > 0:
                     player_value -= 10
                     player_aces.pop(0)
-                await ctx.send(f"You hit: {player_hit_card}\n= {player_value}")
+                await ctx.send(f"You hit: {player_hit_card} = {player_value}")
                 if player_value > 21:
                     await ctx.send("You bust, Dealer wins.")
             if player_value > 21:
@@ -143,7 +146,7 @@ async def blackjack(ctx):
                 return
         elif action in ("s", "stand"):
             async with ctx.typing():
-                await ctx.send(f"You stand with: {player_value}")
+                await ctx.send(f"You stand with {player_value}")
                 while dealer_value <= 16:
                     dealer_hit_card = generate_random_unique_card(used)
                     dealer_value += deck[dealer_hit_card]
@@ -157,13 +160,13 @@ async def blackjack(ctx):
                     await ctx.send("Dealer busts, You win!")
                     adjust_bal(user_id, round(bet))
                 else:
-                    await ctx.send(f"Dealer stands with: {dealer_value}.")
+                    await ctx.send(f"Dealer stands with {dealer_value}.")
                     if 21 - player_value < 21 - dealer_value:
                         adjust_bal(user_id, bet)
-                        await ctx.send(f"You win with: {player_value}!")
+                        await ctx.send(f"You win with {player_value}!")
                     elif 21 - player_value > 21 - dealer_value:
                         adjust_bal(user_id, -bet)
-                        await ctx.send(f"Dealer wins with: {dealer_value}.")
+                        await ctx.send(f"Dealer wins with {dealer_value}.")
                     else:
                         await ctx.send("It's a Tie!")
             return
@@ -174,6 +177,6 @@ async def blackjack(ctx):
 @bot.command(name="bal")
 async def bal(ctx):
     async with ctx.typing():
-        await ctx.send(f"{get_bal(ctx.author.id):.2f}")
+        await ctx.send(f"{ctx.author}: ${get_bal(ctx.author.id):.2f}")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)

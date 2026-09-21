@@ -141,9 +141,8 @@ async def blackjack(ctx):
                 await ctx.send(f"You hit: {player_hit_card} = {player_value}")
                 if player_value > 21:
                     await ctx.send("You bust, Dealer wins.")
-            if player_value > 21:
-                adjust_bal(user_id, -bet)
-                return
+                    adjust_bal(user_id, -bet)
+                    return
         elif action in ("s", "stand"):
             async with ctx.typing():
                 await ctx.send(f"You stand with {player_value}")
